@@ -1,0 +1,41 @@
+/* ============================================
+   Base Styles
+   ============================================ */
+
+body {
+  margin: 0;
+  font-family: "DM Sans", sans-serif;
+  color: black;
+  background-color: #f9f8f6;
+}
+
+/* ============================================
+   Typography
+   ============================================ */
+
+h1 {
+  font-weight: 600;
+  font-size: 3.4rem;
+}
+
+h2 {
+  margin: 0 40px 0 15px;
+}
+
+/* ============================================
+   Header
+   ============================================ */
+
+header {
+  display: flex;
+  padding: 1rem 2rem;
+  align-items: center;
+  background-color: #efe9e3;
+  margin-bottom: 0;
+  position: relative;
+  z-index: 100;
+}
+
+.logo {
+  margin-left: 50px;
+}
