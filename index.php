@@ -21,22 +21,26 @@
     </header>
 
     <main>
-        <form>
-            <label for="Fname">First name</label>
-            <input type="text" id="Fname" name="Fname" placeholder="Bob" />
+        <div class="formSection">
+            <form>
+                <label for="Fname">First name</label>
+                <input type="text" id="Fname" name="Fname" placeholder="Bob" />
 
-            <label for="Lname">Last name</label>
-            <input type="text" id="Lname" name="Lname" placeholder="Smith" />
+                <label for="Lname">Last name</label>
+                <input type="text" id="Lname" name="Lname" placeholder="Smith" />
 
-            <label for="userName">Username</label>
-            <input type="text" id="userName" name="userName" placeholder="bobSmith123" />
+                <label for="userName">Username</label>
+                <input type="text" id="userName" name="userName" placeholder="bobSmith123" />
 
-            <label for="Phone-number">Phone number</label>
-            <input type="number" id="phone-number" name="phone-number" placeholder="1234567891" />
+                <label for="Phone-number">Phone number</label>
+                <input type="number" id="phone-number" name="phone-number" placeholder="1234567891" />
 
-            <label for="password">password</label>
-            <input type="password" id="password" name="password" placeholder="******" />
-        </form>
+                <label for="password">password</label>
+                <input type="password" id="password" name="password" placeholder="******" />
+
+                <input type="submit" value="Submit" />
+            </form>
+        </div>
     </main>
 
     <footer>
