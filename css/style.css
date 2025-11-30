@@ -6,19 +6,7 @@ body {
   margin: 0;
   font-family: "DM Sans", sans-serif;
   color: black;
-}
-
-/* ============================================
-   Typography
-   ============================================ */
-
-h1 {
-  font-weight: 600;
-  font-size: 3.4rem;
-}
-
-h2 {
-  margin: 0 40px 0 15px;
+  background-color: #f9f6f2;
 }
 
 /* ============================================
@@ -30,21 +18,114 @@ header {
   padding: 1rem 2rem;
   align-items: center;
   background-color: #efe9e3;
-  margin-bottom: 0;
-  position: relative;
-  z-index: 100;
+  justify-content: space-between;
 }
 
 .logo {
-  margin-left: 50px;
+  width: 60px;
+}
+
+.registerSection {
+  display: flex;
+  gap: 20px;
+}
+
+.nav-link {
+  font-size: 1.1rem;
+  text-decoration: none;
+  color: #444;
+  font-weight: 500;
+  transition: 0.3s;
+}
+
+.nav-link:hover {
+  color: black;
+}
+
+.active {
+  border-bottom: 2px solid black;
 }
 
 /* ============================================
-   Form Section
+   Main Form Section
    ============================================ */
 
-.formSection {
-  width: 500px;
-  height: 500px;
+main {
+  display: flex;
+  justify-content: center;
+  padding-top: 40px;
+}
+
+.formWrapper {
+  width: 420px;
+  background-color: white;
+  padding: 40px;
+  border-radius: 14px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  text-align: center;
+}
+
+.formWrapper h1 {
+  margin-top: 0;
+  font-size: 2.4rem;
+  font-weight: 600;
+}
+
+.subtitle {
+  margin-bottom: 30px;
+  color: gray;
+}
+
+/* ============================================
+   Actual Form Styling
+   ============================================ */
+
+.loginForm {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  text-align: left;
+}
+
+.loginForm label {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.loginForm input[type="text"],
+.loginForm input[type="password"] {
+  padding: 12px 10px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  outline: none;
+  transition: 0.2s;
+}
+
+.loginForm input:focus {
+  border-color: #333;
+}
+
+.submitBtn {
+  margin-top: 10px;
+  padding: 12px;
+  font-size: 1.1rem;
   background-color: black;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.submitBtn:hover {
+  background-color: #333;
+}
+
+/* ============================================
+   Footer Placeholder
+   ============================================ */
+
+footer {
+  padding: 40px;
 }
