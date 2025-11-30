@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="css/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Bank</title>
+</head>
+
+<body>
+
+    <header>
+        <img class="logo" src="images/libraryLogo.png" alt="A open book">
+        <h2>Book Bank</h2>
+
+        <div class="registerSection">
+            <a href="index.php" class="nav-link active">Login</a>
+            <a href="#" class="nav-link">Register</a>
+        </div>
+    </header>
+
+    <main>
+        <div class="formWrapper">
+            <h1>Welcome Back</h1>
+            <p class="subtitle">Login to access your Book Bank</p>
+
+            <form method="POST" action="index.php" class="loginForm">
+                <label for="userName">Username</label>
+                <input type="text" id="userName" name="username" required placeholder="bobSmith123">
+
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required placeholder="******">
+
+                <input type="submit" value="Login" class="submitBtn">
+            </form>
+        </div>
+    </main>
+
+    <footer>
+
+    </footer>
+
+</body>
+
+</html>
