@@ -106,6 +106,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <h1>Register</h1>
             <p class="subtitle">Register to create an account</p>
 
+            <?php if (!empty($errors)): ?>
+                <div class="errorBox">
+                    <ul>
+                        <?php foreach ($errors as $e): ?>
+                            <li><?php echo htmlspecialchars($e); ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+            <?php endif; ?>
+
             <form method="POST" action="register.php" class="loginForm">
                 <label for="Fname">First name</label>
                 <input type="text" id="fName" name="Fname" required placeholder="Bob">

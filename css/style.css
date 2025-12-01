@@ -128,20 +128,19 @@ main {
    Error Messages
    ============================================ */
 
-.error-messages {
-  background-color: #f8d7da;
-  border: 1px solid #f5c2c7;
-  border-radius: 8px;
+.errorBox {
+  background-color: #ffe0e0;
+  border: 1px solid #ff4d4d;
   padding: 15px;
   margin-bottom: 20px;
-  text-align: left;
+  border-radius: 8px;
+  color: #b30000;
+  font-size: 1rem;
 }
 
-.error {
-  color: #842029;
-  margin: 8px 0;
-  font-size: 0.95rem;
-  font-weight: 500;
+.errorBox ul {
+  margin: 0;
+  padding-left: 20px;
 }
 
 .error:first-child {
