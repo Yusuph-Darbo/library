@@ -32,8 +32,8 @@ if (!isset($data['works'])) {
 
 // ===== Prepare insert statement =====
 $stmt = $conn->prepare("
-    INSERT IGNORE INTO book (isbn, bookTitle, author, edition, year, genre, isReserved)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
+    INSERT IGNORE INTO book (isbn, bookTitle, author, edition, year, genre, isReserved, coverImage)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
 ");
 
 if (!$stmt) {
@@ -61,7 +61,25 @@ foreach ($data['works'] as $book) {
     // Reserved (default false)
     $reserved = 0;
 
-    $stmt->bind_param("ssssisi", $isbn, $title, $author, $edition, $publish_year, $genre, $reserved);
+    $coverId = $book['cover_edition_key'] ?? null;
+
+    if ($coverId) {
+        $coverUrl = "https://covers.openlibrary.org/b/olid/" . $coverId . "-M.jpg";
+    } else {
+        $coverUrl = null; // or a default placeholder image
+    }
+
+    $stmt->bind_param(
+        "ssssisis",
+        $isbn,
+        $title,
+        $author,
+        $edition,
+        $publish_year,
+        $genre,
+        $reserved,
+        $coverUrl
+    );
 
     if ($stmt->execute()) {
         $inserted++;
