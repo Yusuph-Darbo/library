@@ -1,3 +1,50 @@
+<?php
+session_start();
+
+// ===== Database Connection =====
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "library";
+
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// If connection fails → go to error page
+if ($conn->connect_error) {
+    header("Location: error.php");
+    exit();
+}
+
+// ===== Handle Login Submission =====
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    $inputUser = $_POST['username'];
+    $inputPass = $_POST['password'];
+
+    // Prepare secure SQL statement
+    $stmt = $conn->prepare("SELECT id, password FROM user WHERE username = ?");
+    $stmt->bind_param("s", $inputUser);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $user = $result->fetch_assoc();
+
+    // Check username + hashed password
+    if ($user && password_verify($inputPass, $user['password'])) {
+
+        // Success → set session
+        $_SESSION['user_id'] = $user['id'];
+
+        // Redirect to your book dashboard page
+        header("Location: dashboard.php");
+        exit();
+
+    } else {
+        // Invalid login
+        $loginError = "Incorrect username or password";
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
