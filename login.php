@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($user && password_verify($inputPass, $user['password'])) {
 
         // Success → set session
-        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['user_id'] = $user['UserId'];
 
         // Redirect to your book dashboard page
         header("Location: home.php");
@@ -74,6 +74,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="formWrapper">
             <h1>Welcome Back</h1>
             <p class="subtitle">Login to access your Book Bank</p>
+
+            <?php if (!empty($loginError)): ?>
+                <div class="errorBox">
+                    <p><?php echo htmlspecialchars($loginError); ?></p>
+                </div>
+            <?php endif; ?>
 
             <form method="POST" action="login.php" class="loginForm">
                 <label for="userName">Username</label>
