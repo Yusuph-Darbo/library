@@ -62,8 +62,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <h2>Book Bank</h2>
 
         <div class="registerSection">
-            <a href="index.php" class="nav-link active">Login</a>
-            <a href="#" class="nav-link">Register</a>
+            <a href="login.php" class="nav-link active">Login</a>
+            <a href="register.php" class="nav-link">Register</a>
         </div>
     </header>
 

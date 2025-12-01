@@ -59,7 +59,7 @@ main {
 
 .formWrapper {
   width: 420px;
-  background-color: #ddb892;
+  background-color: #ffedd8;
   padding: 40px;
   border-radius: 14px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
@@ -94,7 +94,8 @@ main {
 }
 
 .loginForm input[type="text"],
-.loginForm input[type="password"] {
+.loginForm input[type="password"],
+.loginForm input[type="tel"] {
   padding: 12px 10px;
   font-size: 1rem;
   border: 1px solid #ccc;
