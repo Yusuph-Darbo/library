@@ -1,41 +1,80 @@
 <?php
+// Initialize error array
+$errors = [];
+
 // Run this ONLY when the form is submitted
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
-    // Database connection
-    $conn = new mysqli("localhost", "root", "", "library");
-
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
+    // Validate all fields
+    if (empty($_POST['Fname'])) {
+        $errors[] = "First name is required";
     }
 
-    // Get form data safely
-    $fname = $_POST['Fname'];
-    $lname = $_POST['Lname'];
-    $username = $_POST['username'];
-    $phone = $_POST['phone'];
-    $address = $_POST['address'];
-    $city = $_POST['city'];
-    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-
-    // Prepare SQL statement
-    $stmt = $conn->prepare("
-        INSERT INTO user (Fname, Lname, username, phone, address, city, password)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-    ");
-
-    $stmt->bind_param("sssssss", $fname, $lname, $username, $phone, $address, $city, $password);
-
-    if ($stmt->execute()) {
-        // Redirect to login page after successful registration
-        header("Location: login.php?registered=1");
-        exit;
-    } else {
-        echo "Error: " . $stmt->error;
+    if (empty($_POST['Lname'])) {
+        $errors[] = "Last name is required";
     }
 
-    $stmt->close();
-    $conn->close();
+    if (empty($_POST['username'])) {
+        $errors[] = "Username is required";
+    }
+
+    if (empty($_POST['phone'])) {
+        $errors[] = "Phone number is required";
+    } elseif (!preg_match('/^\d{10}$/', $_POST['phone'])) {
+        $errors[] = "Phone number must be exactly 10 digits";
+    }
+
+    if (empty($_POST['address'])) {
+        $errors[] = "Address is required";
+    }
+
+    if (empty($_POST['city'])) {
+        $errors[] = "City is required";
+    }
+
+    if (empty($_POST['password'])) {
+        $errors[] = "Password is required";
+    } elseif (strlen($_POST['password']) < 6) {
+        $errors[] = "Password must be at least 6 characters long";
+    }
+
+    // If no errors, proceed with database insertion
+    if (empty($errors)) {
+        // Database connection
+        $conn = new mysqli("localhost", "root", "", "library");
+
+        if ($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
+        }
+
+        // Get form data safely
+        $fname = $_POST['Fname'];
+        $lname = $_POST['Lname'];
+        $username = $_POST['username'];
+        $phone = $_POST['phone'];
+        $address = $_POST['address'];
+        $city = $_POST['city'];
+        $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+
+        // Prepare SQL statement
+        $stmt = $conn->prepare("
+            INSERT INTO user (Fname, Lname, username, phone, address, city, password)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        ");
+
+        $stmt->bind_param("sssssss", $fname, $lname, $username, $phone, $address, $city, $password);
+
+        if ($stmt->execute()) {
+            // Redirect to login page after successful registration
+            header("Location: login.php?registered=1");
+            exit;
+        } else {
+            $errors[] = "Error: " . $stmt->error;
+        }
+
+        $stmt->close();
+        $conn->close();
+    }
 }
 ?>
 
