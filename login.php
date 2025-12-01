@@ -1,6 +1,9 @@
 <?php
 session_start();
 
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 // ===== Database Connection =====
 $servername = "localhost";
 $username = "root";
@@ -22,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $inputPass = $_POST['password'];
 
     // Prepare secure SQL statement
-    $stmt = $conn->prepare("SELECT id, password FROM user WHERE username = ?");
+    $stmt = $conn->prepare("SELECT UserId, password FROM user WHERE username = ?");
     $stmt->bind_param("s", $inputUser);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -35,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['user_id'] = $user['id'];
 
         // Redirect to your book dashboard page
-        header("Location: dashboard.php");
+        header("Location: index.php");
         exit();
 
     } else {
