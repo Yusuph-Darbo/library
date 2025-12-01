@@ -72,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <h1>Welcome Back</h1>
             <p class="subtitle">Login to access your Book Bank</p>
 
-            <form method="POST" action="index.php" class="loginForm">
+            <form method="POST" action="login.php" class="loginForm">
                 <label for="userName">Username</label>
                 <input type="text" id="userName" name="username" required placeholder="bobSmith123">
 
