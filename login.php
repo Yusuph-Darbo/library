@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['user_id'] = $user['id'];
 
         // Redirect to your book dashboard page
-        header("Location: index.php");
+        header("Location: home.php");
         exit();
 
     } else {
