@@ -129,8 +129,19 @@ main {
 }
 
 /* ============================================
-   Error Messages
+   Success & Error Messages
    ============================================ */
+
+.successBox {
+  background-color: #d4edda;
+  border: 1px solid #28a745;
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  color: #155724;
+  font-size: 1rem;
+  text-align: center;
+}
 
 .errorBox {
   background-color: #ffe0e0;
@@ -324,6 +335,54 @@ main {
 .bookInfo .status.reserved {
   background-color: #f8d7da;
   color: #721c24;
+}
+
+/* ============================================
+   Reservation Buttons
+   ============================================ */
+
+.reserveForm {
+  margin-top: 15px;
+}
+
+.reserveBtn {
+  width: 100%;
+  padding: 12px;
+  font-size: 1rem;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+  font-weight: 600;
+}
+
+.reserveBtn:hover {
+  background-color: #218838;
+}
+
+.reserveBtn.disabled {
+  background-color: #999;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.loginPrompt {
+  margin-top: 15px;
+  font-size: 0.95rem;
+  color: #666;
+  text-align: center;
+}
+
+.loginPrompt a {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.loginPrompt a:hover {
+  text-decoration: underline;
 }
 
 /* ============================================
