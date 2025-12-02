@@ -51,7 +51,11 @@ if (isset($_POST['reserve_book']) && isset($_SESSION['user_id'])) {
 
             // Commit transaction
             $conn->commit();
-            $successMessage = "Book reserved successfully!";
+
+            // Redirect to prevent form resubmission and refresh the search results
+            $redirectUrl = "home.php?search=" . urlencode($_GET['search']) . "&success=reserved";
+            header("Location: " . $redirectUrl);
+            exit();
         } catch (Exception $e) {
             // Rollback on error
             $conn->rollback();
@@ -61,6 +65,11 @@ if (isset($_POST['reserve_book']) && isset($_SESSION['user_id'])) {
         $errorMessage = "This book is already reserved.";
     }
     $checkStmt->close();
+}
+
+// ===== Check for success message from redirect =====
+if (isset($_GET['success']) && $_GET['success'] === 'reserved') {
+    $successMessage = "Book reserved successfully!";
 }
 
 // ===== Handle Search =====
