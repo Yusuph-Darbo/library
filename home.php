@@ -23,16 +23,7 @@ $errorMessage = "";
 // ===== Handle Reservation =====
 if (isset($_POST['reserve_book']) && isset($_SESSION['user_id'])) {
     $isbn = $_POST['isbn'];
-    $userId = $_SESSION['user_id'];
-
-    // Get username from user_id
-    $userStmt = $conn->prepare("SELECT username FROM user WHERE UserId = ?");
-    $userStmt->bind_param("i", $userId);
-    $userStmt->execute();
-    $userResult = $userStmt->get_result();
-    $userData = $userResult->fetch_assoc();
-    $username = $userData['username'];
-    $userStmt->close();
+    $username = $_SESSION['user_id']; // This contains the username
 
     // Check if book is still available
     $checkStmt = $conn->prepare("SELECT isReserved FROM book WHERE isbn = ?");
@@ -104,8 +95,8 @@ $conn->close();
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="css/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Book Bank - Home Page</title>
 </head>
 
@@ -117,7 +108,7 @@ $conn->close();
 
         <div class="registerSection">
             <?php if (isset($_SESSION['user_id'])): ?>
-                <a href="reserve.php" class="nav-link">See reserved books</a>
+                <a href="reserve.php" class="nav-link">My Reservations</a>
                 <a href="logout.php" class="nav-link">Logout</a>
             <?php else: ?>
                 <a href="login.php" class="nav-link">Login</a>
