@@ -25,6 +25,15 @@ if (isset($_POST['reserve_book']) && isset($_SESSION['user_id'])) {
     $isbn = $_POST['isbn'];
     $userId = $_SESSION['user_id'];
 
+    // Get username from user_id
+    $userStmt = $conn->prepare("SELECT username FROM user WHERE id = ?");
+    $userStmt->bind_param("i", $userId);
+    $userStmt->execute();
+    $userResult = $userStmt->get_result();
+    $userData = $userResult->fetch_assoc();
+    $username = $userData['username'];
+    $userStmt->close();
+
     // Check if book is still available
     $checkStmt = $conn->prepare("SELECT isReserved FROM book WHERE isbn = ?");
     $checkStmt->bind_param("s", $isbn);
@@ -33,16 +42,30 @@ if (isset($_POST['reserve_book']) && isset($_SESSION['user_id'])) {
     $book = $result->fetch_assoc();
 
     if ($book && !$book['isReserved']) {
-        // Update book to reserved
-        $updateStmt = $conn->prepare("UPDATE book SET isReserved = 1 WHERE isbn = ?");
-        $updateStmt->bind_param("s", $isbn);
+        // Start transaction
+        $conn->begin_transaction();
 
-        if ($updateStmt->execute()) {
+        try {
+            // Update book to reserved
+            $updateStmt = $conn->prepare("UPDATE book SET isReserved = 1 WHERE isbn = ?");
+            $updateStmt->bind_param("s", $isbn);
+            $updateStmt->execute();
+            $updateStmt->close();
+
+            // Insert into reserved table
+            $reserveStmt = $conn->prepare("INSERT INTO reserved (isbn, username, reservedDate) VALUES (?, ?, NOW())");
+            $reserveStmt->bind_param("ss", $isbn, $username);
+            $reserveStmt->execute();
+            $reserveStmt->close();
+
+            // Commit transaction
+            $conn->commit();
             $successMessage = "Book reserved successfully!";
-        } else {
+        } catch (Exception $e) {
+            // Rollback on error
+            $conn->rollback();
             $errorMessage = "Failed to reserve the book. Please try again.";
         }
-        $updateStmt->close();
     } else {
         $errorMessage = "This book is already reserved.";
     }
@@ -187,7 +210,7 @@ $conn->close();
     </main>
 
     <footer>
-        <p>© 2025 Book Bank – All Rights Reserved</p>
+        <p>© 2025 Book Bank — All Rights Reserved</p>
     </footer>
 
 </body>
