@@ -26,7 +26,7 @@ if (isset($_POST['reserve_book']) && isset($_SESSION['user_id'])) {
     $userId = $_SESSION['user_id'];
 
     // Get username from user_id
-    $userStmt = $conn->prepare("SELECT username FROM user WHERE id = ?");
+    $userStmt = $conn->prepare("SELECT username FROM user WHERE UserId = ?");
     $userStmt->bind_param("i", $userId);
     $userStmt->execute();
     $userResult = $userStmt->get_result();
@@ -117,6 +117,7 @@ $conn->close();
 
         <div class="registerSection">
             <?php if (isset($_SESSION['user_id'])): ?>
+                <a href="reserve.php" class="nav-link">See reserved books</a>
                 <a href="logout.php" class="nav-link">Logout</a>
             <?php else: ?>
                 <a href="login.php" class="nav-link">Login</a>
