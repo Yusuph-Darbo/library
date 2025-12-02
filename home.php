@@ -1,9 +1,6 @@
 <?php
 session_start();
 
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
 // ===== Database Connection =====
 $servername = "localhost";
 $username = "root";
@@ -20,17 +17,48 @@ if ($conn->connect_error) {
 // ===== Initialize variables =====
 $searchQuery = "";
 $books = [];
+$successMessage = "";
+$errorMessage = "";
+
+// ===== Handle Reservation =====
+if (isset($_POST['reserve_book']) && isset($_SESSION['user_id'])) {
+    $isbn = $_POST['isbn'];
+    $userId = $_SESSION['user_id'];
+
+    // Check if book is still available
+    $checkStmt = $conn->prepare("SELECT isReserved FROM book WHERE isbn = ?");
+    $checkStmt->bind_param("s", $isbn);
+    $checkStmt->execute();
+    $result = $checkStmt->get_result();
+    $book = $result->fetch_assoc();
+
+    if ($book && !$book['isReserved']) {
+        // Update book to reserved
+        $updateStmt = $conn->prepare("UPDATE book SET isReserved = 1 WHERE isbn = ?");
+        $updateStmt->bind_param("s", $isbn);
+
+        if ($updateStmt->execute()) {
+            $successMessage = "Book reserved successfully!";
+        } else {
+            $errorMessage = "Failed to reserve the book. Please try again.";
+        }
+        $updateStmt->close();
+    } else {
+        $errorMessage = "This book is already reserved.";
+    }
+    $checkStmt->close();
+}
 
 // ===== Handle Search =====
 if (isset($_GET['search']) && !empty(trim($_GET['search']))) {
     $searchQuery = trim($_GET['search']);
 
-    // Prepare search statement (searches title, author, and genre)
+    // Prepare search statement (searches title, author, and genre) - LIMIT 5
     $stmt = $conn->prepare("
         SELECT isbn, bookTitle, author, edition, year, genre, isReserved, coverImage
         FROM book
         WHERE bookTitle LIKE ? OR author LIKE ? OR genre LIKE ?
-        LIMIT 50
+        LIMIT 5
     ");
 
     $searchParam = "%{$searchQuery}%";
@@ -55,7 +83,7 @@ $conn->close();
     <meta charset="UTF-8">
     <link rel="stylesheet" href="css/style.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Book Bank - Search Books</title>
+    <title>Book Bank - Home Page</title>
 </head>
 
 <body>
@@ -78,7 +106,20 @@ $conn->close();
         <div class="searchSection">
             <h1>Search for a Book</h1>
 
-            <form method="GET" action="search_books.php" class="searchForm">
+            <!-- Success/Error Messages -->
+            <?php if (!empty($successMessage)): ?>
+                <div class="successBox">
+                    <p><?php echo htmlspecialchars($successMessage); ?></p>
+                </div>
+            <?php endif; ?>
+
+            <?php if (!empty($errorMessage)): ?>
+                <div class="errorBox">
+                    <p><?php echo htmlspecialchars($errorMessage); ?></p>
+                </div>
+            <?php endif; ?>
+
+            <form method="GET" action="home.php" class="searchForm">
                 <input type="text" name="search" placeholder="Search by title, author, or genre..."
                     value="<?php echo htmlspecialchars($searchQuery); ?>" required>
                 <button type="submit" class="searchBtn">Search</button>
@@ -91,7 +132,7 @@ $conn->close();
                     <?php if (empty($books)): ?>
                         <p class="noResults">No books found. Try a different search term.</p>
                     <?php else: ?>
-                        <p class="resultCount"><?php echo count($books); ?> book(s) found</p>
+                        <p class="resultCount"><?php echo count($books); ?> book(s) found (showing max 5 results)</p>
 
                         <div class="bookGrid">
                             <?php foreach ($books as $book): ?>
@@ -118,6 +159,23 @@ $conn->close();
                                         <p class="status <?php echo $book['isReserved'] ? 'reserved' : 'available'; ?>">
                                             <?php echo $book['isReserved'] ? 'Reserved' : 'Available'; ?>
                                         </p>
+
+                                        <!-- Reservation Button -->
+                                        <?php if (isset($_SESSION['user_id'])): ?>
+                                            <?php if (!$book['isReserved']): ?>
+                                                <form method="POST" action="home.php?search=<?php echo urlencode($searchQuery); ?>"
+                                                    class="reserveForm">
+                                                    <input type="hidden" name="isbn" value="<?php echo htmlspecialchars($book['isbn']); ?>">
+                                                    <button type="submit" name="reserve_book" class="reserveBtn">Reserve Book</button>
+                                                </form>
+                                            <?php else: ?>
+                                                <button class="reserveBtn disabled" disabled>Already Reserved</button>
+                                            <?php endif; ?>
+                                        <?php else: ?>
+                                            <p class="loginPrompt">
+                                                <a href="login.php">Login</a> to reserve this book
+                                            </p>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
@@ -133,3 +191,5 @@ $conn->close();
     </footer>
 
 </body>
+
+</html>
