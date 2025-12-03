@@ -16,12 +16,20 @@ if ($conn->connect_error) {
 
 // ===== Initialize variables =====
 $searchQuery = "";
+$selectedCategory = "";
 $books = [];
+$categories = [];
 $successMessage = "";
 $errorMessage = "";
 
+// ===== Fetch all categories =====
+$categoryStmt = $conn->query("SELECT categoryId, categoryDesc FROM category ORDER BY categoryDesc");
+while ($row = $categoryStmt->fetch_assoc()) {
+    $categories[] = $row;
+}
+
 // ===== Handle Reservation =====
-if (isset($_POST['reserve_book']) && isset($_SESSION['user_id'])) {
+if (isset($_POST['reserve_book']) && isset($_SESSION['username'])) {
     $isbn = $_POST['isbn'];
     $username = $_SESSION['username'];
 
@@ -53,7 +61,7 @@ if (isset($_POST['reserve_book']) && isset($_SESSION['user_id'])) {
             $conn->commit();
 
             // Redirect to prevent form resubmission and refresh the search results
-            $redirectUrl = "home.php?search=" . urlencode($_GET['search']) . "&success=reserved";
+            $redirectUrl = "home.php?search=" . urlencode($_GET['search'] ?? '') . "&category=" . urlencode($_GET['category'] ?? '') . "&success=reserved";
             header("Location: " . $redirectUrl);
             exit();
         } catch (Exception $e) {
@@ -72,20 +80,40 @@ if (isset($_GET['success']) && $_GET['success'] === 'reserved') {
     $successMessage = "Book reserved successfully!";
 }
 
-// ===== Handle Search =====
-if (isset($_GET['search']) && !empty(trim($_GET['search']))) {
-    $searchQuery = trim($_GET['search']);
+// ===== Handle Search and Category Filter =====
+if ((isset($_GET['search']) && !empty(trim($_GET['search']))) || (isset($_GET['category']) && !empty($_GET['category']))) {
+    $searchQuery = isset($_GET['search']) ? trim($_GET['search']) : "";
+    $selectedCategory = isset($_GET['category']) ? trim($_GET['category']) : "";
 
-    // Prepare search statement (searches title, author, and genre) - LIMIT 5
-    $stmt = $conn->prepare("
-        SELECT isbn, bookTitle, author, edition, year, genre, isReserved, coverImage
-        FROM book
-        WHERE bookTitle LIKE ? OR author LIKE ? OR genre LIKE ?
-        LIMIT 5
-    ");
+    // Build dynamic query
+    $sql = "SELECT isbn, bookTitle, author, edition, year, genre, isReserved, coverImage FROM book WHERE 1=1";
+    $params = [];
+    $types = "";
 
-    $searchParam = "%{$searchQuery}%";
-    $stmt->bind_param("sss", $searchParam, $searchParam, $searchParam);
+    // Add search condition
+    if (!empty($searchQuery)) {
+        $sql .= " AND (bookTitle LIKE ? OR author LIKE ? OR genre LIKE ?)";
+        $searchParam = "%{$searchQuery}%";
+        $params[] = $searchParam;
+        $params[] = $searchParam;
+        $params[] = $searchParam;
+        $types .= "sss";
+    }
+
+    // Add category filter
+    if (!empty($selectedCategory)) {
+        $sql .= " AND genre = ?";
+        $params[] = $selectedCategory;
+        $types .= "s";
+    }
+
+    $sql .= " LIMIT 5";
+
+    // Prepare and execute
+    $stmt = $conn->prepare($sql);
+    if (!empty($params)) {
+        $stmt->bind_param($types, ...$params);
+    }
     $stmt->execute();
     $result = $stmt->get_result();
 
@@ -116,7 +144,7 @@ $conn->close();
         <h2>Book Bank</h2>
 
         <div class="registerSection">
-            <?php if (isset($_SESSION['user_id'])): ?>
+            <?php if (isset($_SESSION['username'])): ?>
             <a href="reserve.php" class="nav-link">My Reservations</a>
             <a href="logout.php" class="nav-link">Logout</a>
             <?php else: ?>
@@ -145,16 +173,34 @@ $conn->close();
 
             <form method="GET" action="home.php" class="searchForm">
                 <input type="text" name="search" placeholder="Search by title, author, or genre..."
-                    value="<?php echo htmlspecialchars($searchQuery); ?>" required>
+                    value="<?php echo htmlspecialchars($searchQuery); ?>">
+
+                <select name="category" class="categorySelect">
+                    <option value="">All Categories</option>
+                    <?php foreach ($categories as $cat): ?>
+                    <option value="<?php echo htmlspecialchars($cat['categoryDesc']); ?>"
+                        <?php echo ($selectedCategory === $cat['categoryDesc']) ? 'selected' : ''; ?>>
+                        <?php echo htmlspecialchars($cat['categoryDesc']); ?>
+                    </option>
+                    <?php endforeach; ?>
+                </select>
+
                 <button type="submit" class="searchBtn">Search</button>
             </form>
 
-            <?php if (!empty($searchQuery)): ?>
+            <?php if (!empty($searchQuery) || !empty($selectedCategory)): ?>
             <div class="resultsSection">
-                <h2>Search Results for "<?php echo htmlspecialchars($searchQuery); ?>"</h2>
+                <h2>Search Results
+                    <?php if (!empty($searchQuery)): ?>
+                    for "<?php echo htmlspecialchars($searchQuery); ?>"
+                    <?php endif; ?>
+                    <?php if (!empty($selectedCategory)): ?>
+                    in <?php echo htmlspecialchars($selectedCategory); ?>
+                    <?php endif; ?>
+                </h2>
 
                 <?php if (empty($books)): ?>
-                <p class="noResults">No books found. Try a different search term.</p>
+                <p class="noResults">No books found. Try a different search term or category.</p>
                 <?php else: ?>
                 <p class="resultCount"><?php echo count($books); ?> book(s) found (showing max 5 results)</p>
 
@@ -185,9 +231,10 @@ $conn->close();
                             </p>
 
                             <!-- Reservation Button -->
-                            <?php if (isset($_SESSION['user_id'])): ?>
+                            <?php if (isset($_SESSION['username'])): ?>
                             <?php if (!$book['isReserved']): ?>
-                            <form method="POST" action="home.php?search=<?php echo urlencode($searchQuery); ?>"
+                            <form method="POST"
+                                action="home.php?search=<?php echo urlencode($searchQuery); ?>&category=<?php echo urlencode($selectedCategory); ?>"
                                 class="reserveForm">
                                 <input type="hidden" name="isbn" value="<?php echo htmlspecialchars($book['isbn']); ?>">
                                 <button type="submit" name="reserve_book" class="reserveBtn">Reserve Book</button>
@@ -211,7 +258,7 @@ $conn->close();
     </main>
 
     <footer>
-        <p>© 2025 Book Bank — All Rights Reserved</p>
+        <p>© 2025 Book Bank – All Rights Reserved</p>
     </footer>
 
 </body>
