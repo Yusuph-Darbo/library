@@ -184,12 +184,14 @@ main {
 .searchForm {
   display: flex;
   gap: 10px;
-  max-width: 600px;
+  max-width: 800px;
   margin: 0 auto 40px;
+  flex-wrap: wrap;
 }
 
 .searchForm input[type="text"] {
   flex: 1;
+  min-width: 250px;
   padding: 14px 18px;
   font-size: 1rem;
   border: 2px solid #d6c1a9;
@@ -200,6 +202,27 @@ main {
 
 .searchForm input[type="text"]:focus {
   border-color: #333;
+}
+
+.categorySelect {
+  padding: 14px 18px;
+  font-size: 1rem;
+  border: 2px solid #d6c1a9;
+  border-radius: 8px;
+  outline: none;
+  background-color: white;
+  cursor: pointer;
+  transition: 0.2s;
+  min-width: 180px;
+  font-family: "DM Sans", sans-serif;
+}
+
+.categorySelect:focus {
+  border-color: #333;
+}
+
+.categorySelect:hover {
+  border-color: #999;
 }
 
 .searchBtn {
@@ -383,6 +406,49 @@ main {
 
 .loginPrompt a:hover {
   text-decoration: underline;
+}
+
+/* ============================================
+   Pagination
+   ============================================ */
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 40px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.pageBtn {
+  padding: 10px 16px;
+  background-color: white;
+  color: #444;
+  border: 2px solid #d6c1a9;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: 0.3s;
+  cursor: pointer;
+}
+
+.pageBtn:hover {
+  background-color: #efe9e3;
+  border-color: #999;
+}
+
+.pageBtn.active {
+  background-color: black;
+  color: white;
+  border-color: black;
+}
+
+.pageBtn.active:hover {
+  background-color: #333;
+  border-color: #333;
 }
 
 /* ============================================
