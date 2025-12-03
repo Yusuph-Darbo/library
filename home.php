@@ -90,30 +90,31 @@ if ((isset($_GET['search']) && !empty(trim($_GET['search']))) || (isset($_GET['c
 
     // Build dynamic query for COUNT
     $countSql = "SELECT COUNT(*) as total FROM book WHERE 1=1";
-    $params = [];
-    $types = "";
+    $countParams = [];
+    $countTypes = "";
 
     // Add search condition
     if (!empty($searchQuery)) {
         $countSql .= " AND (bookTitle LIKE ? OR author LIKE ? OR genre LIKE ?)";
         $searchParam = "%{$searchQuery}%";
-        $params[] = $searchParam;
-        $params[] = $searchParam;
-        $params[] = $searchParam;
-        $types .= "sss";
+        $countParams[] = $searchParam;
+        $countParams[] = $searchParam;
+        $countParams[] = $searchParam;
+        $countTypes .= "sss";
     }
 
     // Add category filter
     if (!empty($selectedCategory)) {
-        $countSql .= " AND genre = ?";
-        $params[] = $selectedCategory;
-        $types .= "s";
+        $countSql .= " AND genre LIKE ?";
+        $categoryParam = "%{$selectedCategory}%";
+        $countParams[] = $categoryParam;
+        $countTypes .= "s";
     }
 
     // Get total count
     $countStmt = $conn->prepare($countSql);
-    if (!empty($params)) {
-        $countStmt->bind_param($types, ...$params);
+    if (!empty($countParams)) {
+        $countStmt->bind_param($countTypes, ...$countParams);
     }
     $countStmt->execute();
     $countResult = $countStmt->get_result();
@@ -140,8 +141,9 @@ if ((isset($_GET['search']) && !empty(trim($_GET['search']))) || (isset($_GET['c
 
     // Add category filter
     if (!empty($selectedCategory)) {
-        $sql .= " AND genre = ?";
-        $params[] = $selectedCategory;
+        $sql .= " AND genre LIKE ?";
+        $categoryParam = "%{$selectedCategory}%";
+        $params[] = $categoryParam;
         $types .= "s";
     }
 
