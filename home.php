@@ -21,6 +21,9 @@ $books = [];
 $categories = [];
 $successMessage = "";
 $errorMessage = "";
+$currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+$booksPerPage = 5;
+$totalBooks = 0;
 
 // ===== Fetch all categories =====
 $categoryStmt = $conn->query("SELECT categoryId, categoryDesc FROM category ORDER BY categoryDesc");
@@ -61,7 +64,7 @@ if (isset($_POST['reserve_book']) && isset($_SESSION['username'])) {
             $conn->commit();
 
             // Redirect to prevent form resubmission and refresh the search results
-            $redirectUrl = "home.php?search=" . urlencode($_GET['search'] ?? '') . "&category=" . urlencode($_GET['category'] ?? '') . "&success=reserved";
+            $redirectUrl = "home.php?search=" . urlencode($_GET['search'] ?? '') . "&category=" . urlencode($_GET['category'] ?? '') . "&page=" . $currentPage . "&success=reserved";
             header("Location: " . $redirectUrl);
             exit();
         } catch (Exception $e) {
@@ -85,7 +88,42 @@ if ((isset($_GET['search']) && !empty(trim($_GET['search']))) || (isset($_GET['c
     $searchQuery = isset($_GET['search']) ? trim($_GET['search']) : "";
     $selectedCategory = isset($_GET['category']) ? trim($_GET['category']) : "";
 
-    // Build dynamic query
+    // Build dynamic query for COUNT
+    $countSql = "SELECT COUNT(*) as total FROM book WHERE 1=1";
+    $params = [];
+    $types = "";
+
+    // Add search condition
+    if (!empty($searchQuery)) {
+        $countSql .= " AND (bookTitle LIKE ? OR author LIKE ? OR genre LIKE ?)";
+        $searchParam = "%{$searchQuery}%";
+        $params[] = $searchParam;
+        $params[] = $searchParam;
+        $params[] = $searchParam;
+        $types .= "sss";
+    }
+
+    // Add category filter
+    if (!empty($selectedCategory)) {
+        $countSql .= " AND genre = ?";
+        $params[] = $selectedCategory;
+        $types .= "s";
+    }
+
+    // Get total count
+    $countStmt = $conn->prepare($countSql);
+    if (!empty($params)) {
+        $countStmt->bind_param($types, ...$params);
+    }
+    $countStmt->execute();
+    $countResult = $countStmt->get_result();
+    $totalBooks = $countResult->fetch_assoc()['total'];
+    $countStmt->close();
+
+    // Calculate offset
+    $offset = ($currentPage - 1) * $booksPerPage;
+
+    // Build query for fetching books
     $sql = "SELECT isbn, bookTitle, author, edition, year, genre, isReserved, coverImage FROM book WHERE 1=1";
     $params = [];
     $types = "";
@@ -107,7 +145,10 @@ if ((isset($_GET['search']) && !empty(trim($_GET['search']))) || (isset($_GET['c
         $types .= "s";
     }
 
-    $sql .= " LIMIT 5";
+    $sql .= " LIMIT ? OFFSET ?";
+    $params[] = $booksPerPage;
+    $params[] = $offset;
+    $types .= "ii";
 
     // Prepare and execute
     $stmt = $conn->prepare($sql);
@@ -123,6 +164,8 @@ if ((isset($_GET['search']) && !empty(trim($_GET['search']))) || (isset($_GET['c
 
     $stmt->close();
 }
+
+$totalPages = $totalBooks > 0 ? ceil($totalBooks / $booksPerPage) : 0;
 
 $conn->close();
 ?>
@@ -202,7 +245,8 @@ $conn->close();
                 <?php if (empty($books)): ?>
                 <p class="noResults">No books found. Try a different search term or category.</p>
                 <?php else: ?>
-                <p class="resultCount"><?php echo count($books); ?> book(s) found (showing max 5 results)</p>
+                <p class="resultCount"><?php echo $totalBooks; ?> book(s) found - Page <?php echo $currentPage; ?> of
+                    <?php echo $totalPages; ?></p>
 
                 <div class="bookGrid">
                     <?php foreach ($books as $book): ?>
@@ -234,7 +278,7 @@ $conn->close();
                             <?php if (isset($_SESSION['username'])): ?>
                             <?php if (!$book['isReserved']): ?>
                             <form method="POST"
-                                action="home.php?search=<?php echo urlencode($searchQuery); ?>&category=<?php echo urlencode($selectedCategory); ?>"
+                                action="home.php?search=<?php echo urlencode($searchQuery); ?>&category=<?php echo urlencode($selectedCategory); ?>&page=<?php echo $currentPage; ?>"
                                 class="reserveForm">
                                 <input type="hidden" name="isbn" value="<?php echo htmlspecialchars($book['isbn']); ?>">
                                 <button type="submit" name="reserve_book" class="reserveBtn">Reserve Book</button>
@@ -251,6 +295,32 @@ $conn->close();
                     </div>
                     <?php endforeach; ?>
                 </div>
+
+                <!-- Pagination -->
+                <?php if ($totalPages > 1): ?>
+                <div class="pagination">
+                    <?php if ($currentPage > 1): ?>
+                    <a href="home.php?search=<?php echo urlencode($searchQuery); ?>&category=<?php echo urlencode($selectedCategory); ?>&page=<?php echo $currentPage - 1; ?>"
+                        class="pageBtn">Previous</a>
+                    <?php endif; ?>
+
+                    <?php
+                                $startPage = max(1, $currentPage - 2);
+                                $endPage = min($totalPages, $currentPage + 2);
+
+                                for ($i = $startPage; $i <= $endPage; $i++): ?>
+                    <a href="home.php?search=<?php echo urlencode($searchQuery); ?>&category=<?php echo urlencode($selectedCategory); ?>&page=<?php echo $i; ?>"
+                        class="pageBtn <?php echo $i === $currentPage ? 'active' : ''; ?>">
+                        <?php echo $i; ?>
+                    </a>
+                    <?php endfor; ?>
+
+                    <?php if ($currentPage < $totalPages): ?>
+                    <a href="home.php?search=<?php echo urlencode($searchQuery); ?>&category=<?php echo urlencode($selectedCategory); ?>&page=<?php echo $currentPage + 1; ?>"
+                        class="pageBtn">Next</a>
+                    <?php endif; ?>
+                </div>
+                <?php endif; ?>
                 <?php endif; ?>
             </div>
             <?php endif; ?>
