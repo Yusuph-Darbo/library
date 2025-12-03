@@ -23,7 +23,7 @@ $errorMessage = "";
 // ===== Handle Reservation =====
 if (isset($_POST['reserve_book']) && isset($_SESSION['user_id'])) {
     $isbn = $_POST['isbn'];
-    $username = $_SESSION['user_id']; // This contains the username
+    $username = $_SESSION['username'];
 
     // Check if book is still available
     $checkStmt = $conn->prepare("SELECT isReserved FROM book WHERE isbn = ?");
@@ -117,11 +117,11 @@ $conn->close();
 
         <div class="registerSection">
             <?php if (isset($_SESSION['user_id'])): ?>
-                <a href="reserve.php" class="nav-link">My Reservations</a>
-                <a href="logout.php" class="nav-link">Logout</a>
+            <a href="reserve.php" class="nav-link">My Reservations</a>
+            <a href="logout.php" class="nav-link">Logout</a>
             <?php else: ?>
-                <a href="login.php" class="nav-link">Login</a>
-                <a href="register.php" class="nav-link">Register</a>
+            <a href="login.php" class="nav-link">Login</a>
+            <a href="register.php" class="nav-link">Register</a>
             <?php endif; ?>
         </div>
     </header>
@@ -132,15 +132,15 @@ $conn->close();
 
             <!-- Success/Error Messages -->
             <?php if (!empty($successMessage)): ?>
-                <div class="successBox">
-                    <p><?php echo htmlspecialchars($successMessage); ?></p>
-                </div>
+            <div class="successBox">
+                <p><?php echo htmlspecialchars($successMessage); ?></p>
+            </div>
             <?php endif; ?>
 
             <?php if (!empty($errorMessage)): ?>
-                <div class="errorBox">
-                    <p><?php echo htmlspecialchars($errorMessage); ?></p>
-                </div>
+            <div class="errorBox">
+                <p><?php echo htmlspecialchars($errorMessage); ?></p>
+            </div>
             <?php endif; ?>
 
             <form method="GET" action="home.php" class="searchForm">
@@ -150,62 +150,62 @@ $conn->close();
             </form>
 
             <?php if (!empty($searchQuery)): ?>
-                <div class="resultsSection">
-                    <h2>Search Results for "<?php echo htmlspecialchars($searchQuery); ?>"</h2>
+            <div class="resultsSection">
+                <h2>Search Results for "<?php echo htmlspecialchars($searchQuery); ?>"</h2>
 
-                    <?php if (empty($books)): ?>
-                        <p class="noResults">No books found. Try a different search term.</p>
-                    <?php else: ?>
-                        <p class="resultCount"><?php echo count($books); ?> book(s) found (showing max 5 results)</p>
+                <?php if (empty($books)): ?>
+                <p class="noResults">No books found. Try a different search term.</p>
+                <?php else: ?>
+                <p class="resultCount"><?php echo count($books); ?> book(s) found (showing max 5 results)</p>
 
-                        <div class="bookGrid">
-                            <?php foreach ($books as $book): ?>
-                                <div class="bookCard">
-                                    <?php if (!empty($book['coverImage'])): ?>
-                                        <img src="<?php echo htmlspecialchars($book['coverImage']); ?>"
-                                            alt="<?php echo htmlspecialchars($book['bookTitle']); ?>" class="bookCover">
-                                    <?php else: ?>
-                                        <div class="noCover">No Cover</div>
-                                    <?php endif; ?>
+                <div class="bookGrid">
+                    <?php foreach ($books as $book): ?>
+                    <div class="bookCard">
+                        <?php if (!empty($book['coverImage'])): ?>
+                        <img src="<?php echo htmlspecialchars($book['coverImage']); ?>"
+                            alt="<?php echo htmlspecialchars($book['bookTitle']); ?>" class="bookCover">
+                        <?php else: ?>
+                        <div class="noCover">No Cover</div>
+                        <?php endif; ?>
 
-                                    <div class="bookInfo">
-                                        <h3><?php echo htmlspecialchars($book['bookTitle']); ?></h3>
-                                        <p class="author">by <?php echo htmlspecialchars($book['author']); ?></p>
+                        <div class="bookInfo">
+                            <h3><?php echo htmlspecialchars($book['bookTitle']); ?></h3>
+                            <p class="author">by <?php echo htmlspecialchars($book['author']); ?></p>
 
-                                        <?php if (!empty($book['year'])): ?>
-                                            <p class="year">Year: <?php echo htmlspecialchars($book['year']); ?></p>
-                                        <?php endif; ?>
+                            <?php if (!empty($book['year'])): ?>
+                            <p class="year">Year: <?php echo htmlspecialchars($book['year']); ?></p>
+                            <?php endif; ?>
 
-                                        <?php if (!empty($book['genre'])): ?>
-                                            <p class="genre"><?php echo htmlspecialchars($book['genre']); ?></p>
-                                        <?php endif; ?>
+                            <?php if (!empty($book['genre'])): ?>
+                            <p class="genre"><?php echo htmlspecialchars($book['genre']); ?></p>
+                            <?php endif; ?>
 
-                                        <p class="status <?php echo $book['isReserved'] ? 'reserved' : 'available'; ?>">
-                                            <?php echo $book['isReserved'] ? 'Reserved' : 'Available'; ?>
-                                        </p>
+                            <p class="status <?php echo $book['isReserved'] ? 'reserved' : 'available'; ?>">
+                                <?php echo $book['isReserved'] ? 'Reserved' : 'Available'; ?>
+                            </p>
 
-                                        <!-- Reservation Button -->
-                                        <?php if (isset($_SESSION['user_id'])): ?>
-                                            <?php if (!$book['isReserved']): ?>
-                                                <form method="POST" action="home.php?search=<?php echo urlencode($searchQuery); ?>"
-                                                    class="reserveForm">
-                                                    <input type="hidden" name="isbn" value="<?php echo htmlspecialchars($book['isbn']); ?>">
-                                                    <button type="submit" name="reserve_book" class="reserveBtn">Reserve Book</button>
-                                                </form>
-                                            <?php else: ?>
-                                                <button class="reserveBtn disabled" disabled>Already Reserved</button>
-                                            <?php endif; ?>
-                                        <?php else: ?>
-                                            <p class="loginPrompt">
-                                                <a href="login.php">Login</a> to reserve this book
-                                            </p>
-                                        <?php endif; ?>
-                                    </div>
-                                </div>
-                            <?php endforeach; ?>
+                            <!-- Reservation Button -->
+                            <?php if (isset($_SESSION['user_id'])): ?>
+                            <?php if (!$book['isReserved']): ?>
+                            <form method="POST" action="home.php?search=<?php echo urlencode($searchQuery); ?>"
+                                class="reserveForm">
+                                <input type="hidden" name="isbn" value="<?php echo htmlspecialchars($book['isbn']); ?>">
+                                <button type="submit" name="reserve_book" class="reserveBtn">Reserve Book</button>
+                            </form>
+                            <?php else: ?>
+                            <button class="reserveBtn disabled" disabled>Already Reserved</button>
+                            <?php endif; ?>
+                            <?php else: ?>
+                            <p class="loginPrompt">
+                                <a href="login.php">Login</a> to reserve this book
+                            </p>
+                            <?php endif; ?>
                         </div>
-                    <?php endif; ?>
+                    </div>
+                    <?php endforeach; ?>
                 </div>
+                <?php endif; ?>
+            </div>
             <?php endif; ?>
         </div>
     </main>
