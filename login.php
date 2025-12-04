@@ -1,10 +1,7 @@
 <?php
 session_start();
 
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
-// ===== Database Connection =====
+// Database Connection
 $servername = "localhost";
 $username = "root";
 $password = "";
@@ -12,13 +9,13 @@ $dbname = "library";
 
 $conn = new mysqli($servername, $username, $password, $dbname);
 
-// If connection fails → go to error page
+// If connection fails go to error page
 if ($conn->connect_error) {
     header("Location: error.php");
     exit();
 }
 
-// ===== Handle Login Submission =====
+// Handle Login Submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $inputUser = $_POST['username'];
@@ -34,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Check username + hashed password
     if ($user && password_verify($inputPass, $user['password'])) {
 
-        // Success → set session
+        // Success -> set session
         $_SESSION['user_id'] = $user['UserId'];
         $_SESSION['username'] = $inputUser;
 

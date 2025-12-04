@@ -1,6 +1,6 @@
 <?php
 
-// ===== Database connection =====
+// Database connection
 $servername = "localhost";
 $username = "root";
 $password = "";
@@ -12,9 +12,8 @@ if ($conn->connect_error) {
     die("Database connection failed: " . $conn->connect_error);
 }
 
-// ===== Open Library API fetch =====
-// Example: Fetch books by subject "science_fiction"
-$subject = "science_fiction";
+// Open library API
+$subject = "";
 $api_url = "https://openlibrary.org/subjects/$subject.json?limit=25";
 
 $response = file_get_contents($api_url);
@@ -27,7 +26,7 @@ if (!isset($data['works'])) {
     die("No books found in API response.");
 }
 
-// ===== Prepare insert statement =====
+// Prepare insert statement 
 $stmt = $conn->prepare("
     INSERT IGNORE INTO book (isbn, bookTitle, author, edition, year, genre, isReserved, coverImage)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
@@ -37,7 +36,7 @@ if (!$stmt) {
     die("Prepare failed: " . $conn->error);
 }
 
-// ===== Loop through books and insert =====
+// Loop through books and insert 
 $inserted = 0;
 foreach ($data['works'] as $book) {
     $title = $book['title'] ?? 'Unknown';
@@ -45,9 +44,9 @@ foreach ($data['works'] as $book) {
     // Author
     $author = isset($book['authors'][0]['name']) ? $book['authors'][0]['name'] : 'Unknown';
 
-    // Edition key as a proxy for edition/ISBN
+    // Edition key as a proxy for ISBN
     $isbn = isset($book['cover_edition_key']) ? $book['cover_edition_key'] : null;
-    $edition = $isbn; // Using Open Library edition key as edition identifier
+    $edition = $isbn;
 
     // Publish year
     $publish_year = $book['first_publish_year'] ?? null;

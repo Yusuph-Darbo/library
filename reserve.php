@@ -7,7 +7,7 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-// ===== Database Connection =====
+// Database Connection 
 $servername = "localhost";
 $username = "root";
 $password = "";
@@ -20,13 +20,13 @@ if ($conn->connect_error) {
     exit();
 }
 
-// ===== Initialize variables =====
+// Initialize variables
 $successMessage = "";
 $errorMessage = "";
 $reservedBooks = [];
 $currentUsername = $_SESSION['username'];
 
-// ===== Handle Unreserve =====
+// Handle Unreserve 
 if (isset($_POST['unreserve_book'])) {
     $isbn = $_POST['isbn'];
 
@@ -46,17 +46,15 @@ if (isset($_POST['unreserve_book'])) {
         $deleteStmt->execute();
         $deleteStmt->close();
 
-        // Commit transaction
         $conn->commit();
         $successMessage = "Book unreserved successfully!";
     } catch (Exception $e) {
-        // Rollback on error
         $conn->rollback();
         $errorMessage = "Failed to unreserve the book. Please try again.";
     }
 }
 
-// ===== Fetch Reserved Books =====
+// Fetch Reserved Books 
 $stmt = $conn->prepare("
     SELECT r.isbn, r.reservedDate, b.bookTitle, b.author, b.year, b.genre, b.coverImage
     FROM reserved r

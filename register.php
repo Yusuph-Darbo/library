@@ -2,7 +2,6 @@
 // Initialize error array
 $errors = [];
 
-// Run this ONLY when the form is submitted
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     // Validate all fields
@@ -107,13 +106,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <p class="subtitle">Register to create an account</p>
 
             <?php if (!empty($errors)): ?>
-                <div class="errorBox">
-                    <ul>
-                        <?php foreach ($errors as $e): ?>
-                            <li><?php echo htmlspecialchars($e); ?></li>
-                        <?php endforeach; ?>
-                    </ul>
-                </div>
+            <div class="errorBox">
+                <ul>
+                    <?php foreach ($errors as $e): ?>
+                    <li><?php echo htmlspecialchars($e); ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
             <?php endif; ?>
 
             <form method="POST" action="register.php" class="loginForm">

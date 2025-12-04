@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-// ===== Database Connection =====
+// Database Connection 
 $servername = "localhost";
 $username = "root";
 $password = "";
@@ -14,7 +14,7 @@ if ($conn->connect_error) {
     exit();
 }
 
-// ===== Initialize variables =====
+// Initialize variables 
 $searchQuery = "";
 $selectedCategory = "";
 $books = [];
@@ -25,13 +25,13 @@ $currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
 $booksPerPage = 5;
 $totalBooks = 0;
 
-// ===== Fetch all categories =====
+// Fetch all categories 
 $categoryStmt = $conn->query("SELECT categoryId, categoryDesc FROM category ORDER BY categoryDesc");
 while ($row = $categoryStmt->fetch_assoc()) {
     $categories[] = $row;
 }
 
-// ===== Handle Reservation =====
+// Handle Reservation 
 if (isset($_POST['reserve_book']) && isset($_SESSION['username'])) {
     $isbn = $_POST['isbn'];
     $username = $_SESSION['username'];
@@ -44,7 +44,6 @@ if (isset($_POST['reserve_book']) && isset($_SESSION['username'])) {
     $book = $result->fetch_assoc();
 
     if ($book && !$book['isReserved']) {
-        // Start transaction
         $conn->begin_transaction();
 
         try {
@@ -60,7 +59,6 @@ if (isset($_POST['reserve_book']) && isset($_SESSION['username'])) {
             $reserveStmt->execute();
             $reserveStmt->close();
 
-            // Commit transaction
             $conn->commit();
 
             // Redirect to prevent form resubmission and refresh the search results
@@ -68,7 +66,6 @@ if (isset($_POST['reserve_book']) && isset($_SESSION['username'])) {
             header("Location: " . $redirectUrl);
             exit();
         } catch (Exception $e) {
-            // Rollback on error
             $conn->rollback();
             $errorMessage = "Failed to reserve the book. Please try again.";
         }
@@ -78,7 +75,6 @@ if (isset($_POST['reserve_book']) && isset($_SESSION['username'])) {
     $checkStmt->close();
 }
 
-// ===== Check for success message from redirect =====
 if (isset($_GET['success']) && $_GET['success'] === 'reserved') {
     $successMessage = "Book reserved successfully!";
 }
@@ -203,7 +199,6 @@ $conn->close();
         <div class="searchSection">
             <h1>Search for a Book</h1>
 
-            <!-- Success/Error Messages -->
             <?php if (!empty($successMessage)): ?>
             <div class="successBox">
                 <p><?php echo htmlspecialchars($successMessage); ?></p>
@@ -276,7 +271,6 @@ $conn->close();
                                 <?php echo $book['isReserved'] ? 'Reserved' : 'Available'; ?>
                             </p>
 
-                            <!-- Reservation Button -->
                             <?php if (isset($_SESSION['username'])): ?>
                             <?php if (!$book['isReserved']): ?>
                             <form method="POST"
@@ -298,7 +292,6 @@ $conn->close();
                     <?php endforeach; ?>
                 </div>
 
-                <!-- Pagination -->
                 <?php if ($totalPages > 1): ?>
                 <div class="pagination">
                     <?php if ($currentPage > 1): ?>
