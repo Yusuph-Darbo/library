@@ -29,6 +29,30 @@ A web-based library management system that allows users to search for books, res
 - Success/error message notifications
 - Intuitive navigation between pages
 
+## Screenshots
+
+### Home / Book Search
+<p>
+  <img src="screenshots/home-page.png" alt="Home Page" width="600" height="600">
+</p>
+
+### Login Page
+<p>
+  <img src="screenshots/login-page.png" alt="Login Page" width="600">
+</p>
+
+### User Registration
+<p>
+  <img src="screenshots/register-page.png" alt="Register Page" width="600">
+</p>
+
+### My Reservations
+<p>
+  <img src="screenshots/reserve-page.png" alt="My Reservations" width="600">
+</p>
+
+
+
 ## Technology Stack
 
 - **Frontend**: HTML5, CSS3
